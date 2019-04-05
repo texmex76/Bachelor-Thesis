@@ -1,0 +1,91 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{relsize}
+\usepackage[margin=3cm]{geometry} %Definiere Rand
+\usepackage{graphicx} % Zum Einbinden von Bildern
+\usepackage[english]{babel} % Direkte Eingabe von Umlauten
+\usepackage[utf8]{inputenc} % Direkte Eingabe von Umlauten
+\usepackage[T1]{fontenc}  % Direkte Eingabe von Umlauten
+\usepackage{pgfplots} % Zum Einfuegen von Plots
+\pgfplotsset{compat=1.14} % Damit wird beim Plotten keinen Error bekommen
+\usepackage[section]{placeins} %Damit Bilder in der Section bleiben
+\usepackage{amsmath} % Standard fuer mathematische Ausdruecke
+\usepackage{amssymb} % Weitere Symbole
+\usepackage{mathtools} % Fuer weitere mathematische Ausdruecke
+\usepackage{siunitx} % Um SI-Einheiten anzugeben
+\usepackage[font=small,labelfont=bf]{caption} % Kleinerer Text bei Captions
+\usepackage{tabu} % Anderes Tabellenenvironment, wird am Ende fuer die Namen verwendet
+\usepackage{subcaption} % Side-by-side figures with minipage
+\usepackage{url} % Damit man urls zitieren kann
+\usepackage[autostyle=true,german=quotes]{csquotes} % Damit Zitieren leichter ist; Bsp: \enquote{nur}
+\usepackage[nottoc,numbib]{tocbibind} % Damit die Referenzen im Inhaltsverzeichnis erscheinen
+% Die folgenden zwei Zeilen benennen "Inhaltsverzeichnis" zu "Referenzen um
+\usepackage{standalone} % Zum Outsourcen von Plots
+\addto\captionsngerman{\renewcommand{\bibname}{Referenzen} \renewcommand{\refname}{Referenzen}} % Benennt "Literatur" in "Referenzen" um
+\sisetup{range-phrase=-} % Wie SI-Intervalle angezeigt werden
+\usepackage{setspace} % Damit die naechsten funktionieren
+\renewcommand{\topfraction}{0.85} % Let top 85% of a page contain a figure
+\renewcommand{\textfraction}{0.1} % Default amount of minimum text on page (Set to 10%)
+\renewcommand{\floatpagefraction}{0.75} % Only place figures by themselves if they take up more than 75% of the page
+\DeclareSIPostPower\tothefourth{4} % SI-Einheiten zur 4. Potenz
+%
+\makeatletter
+\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother %roman numerals
+\usepackage{threeparttable, tablefootnote}
+\DeclareSIUnit\torr{torr}
+\usepackage{circuitikz} %For circuits
+\renewcommand{\d}{\mathrm{d}}
+\newcommand{\intl}{\int\limits}
+\sisetup{math-micro=\text{µ},text-micro=µ}
+\usepackage{hyperref} % For hyperlinks to be clickable
+\begin{document}
+%
+    \title{[Title of thesis]\\
+    \vspace{2em}
+    Bachelorarbeit\\
+    \vspace{2em}
+    \smaller[2]{}zur Erlangung des akademischen Grades\\
+    Bachelor of Science (BSc)\\
+    \vspace{2em}
+    eingereicht an der\\
+    Fakult{\"a}t f{\"u}r Mathematik, Informatik und Physik\\
+    der\\
+    Leopold-Franzens-Universit{\"a}t Innsbruck\\
+    \vspace{1.5em}
+    von}
+
+    \author{
+ 	\LARGE Bernhard Gstrein\\
+ 	\vspace{.5em} \\
+ 	Betreuer:\\
+ 	Univ.Prof. Dr. Helmut Ritsch\\
+ 	\small Institut f{\"u}r Theoretische Physik\\
+ 	\vspace{1em}
+	}
+    
+    \date{Innsbruck, 2019}
+
+    \maketitle
+   
+   \begin{abstract}
+	Hier die Kurzfassung in ganzen Sätzen.
+	\end{abstract}
+   
+\newpage
+   
+\tableofcontents
+ 
+\newpage
+    
+
+\input{pump.tex}
+
+
+\newpage
+
+\bibliographystyle{unsrt}
+\bibliography{bibliography}
+
+
+
+\end{document}
