@@ -34,13 +34,45 @@ In our case, the pumping laser is far detuned from the atomic resonance frequenc
 \end{align}We're not interested in fast dynamics, so we set $\dot{\sigma}^+ = 0$. We obtain
 
 \begin{align}
-\sigma^+ = \frac{g_0 \cos(kx)}{\Delta_\text{a}} a^\dagger && \sigma^- = \frac{g_0 \cos(kx)}{\Delta_\text{a}} a.
+\sigma^+ = \frac{g_0 }{\Delta_\text{a}} \cos(kx) a^\dagger && \sigma^- = \frac{g_0 }{\Delta_\text{a}} \cos(kx) a.
 \end{align}We obtain:
 
 \begin{align}
-\dot{a} = -i \Delta_\text{c} a + \frac{i g_0 \cos(kx)}{\Delta_\text{a}} a - i \eta.
+\dot{a} = -i \Delta_\text{c} a + \frac{i g_0}{\Delta_\text{a}}  \cos(kx) a - i \eta.
 \end{align}We can thus make a guess of the effective Hamiltonian:
 
 \begin{align}
-H = \frac{p^2}{2m} = V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \hbar \frac{g_0^2 \cos(kx)^2}{\Delta_\text{a}}.
-\end{align}
+H = \frac{p^2}{2m} = V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \hbar U_0 \cos(kx)^2,
+\end{align}where we set $U_0 \coloneqq g_0^2 / \Delta_\text{a}$.
+
+\section{Transversal Pump}
+
+Now we want to focus our attention at a different case where the laser is incident transversally relative to the axis of the mirrors. The cavity mode will thus only be populated by photons which were scattered off the atoms. The Hamiltonian now reads:
+
+\begin{align}
+\begin{split}
+H_\text{trans} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a  + \hbar \eta \cos(kx) \cos(kz) (a + a^\dagger) + \\
++ \hbar \frac{\Omega^2}{\Delta_\text{a}} \cos(kz)^2 + \hbar U_0 \cos(kx)^2 a^\dagger a,
+\end{split}
+\end{align}where $\Omega$ is the Rabi frequency. Now we get an an effective long-range atom-atom interaction. The periodicity of the potential which is destructive for $\lambda / 2$ and constructive for $\lambda$. The atoms either minimize energy by being homogeneously distributed or by being localized at local potential minima. With the pump strength $\eta$ we control which configuration the atoms "choose". We define an \textit{order parameter} $\Theta$, which indicates whether the atoms are uniformly distributed or localized at potential minima:
+
+\begin{align}
+\Theta \coloneqq \langle \psi | \cos(kx) | \psi \rangle.
+\end{align}At $\Theta = 0$, there's a uniform distribution and at $\Theta = \pm 1$, the atoms are localized at even or odd antinodes. An analytic solution of $\Theta$ and the lattice potential can be seen in Figure~\ref{fig:self-organization}.
+
+\begin{figure}[!htb]
+	\begin{minipage}[b]{.5\linewidth}
+	\centering
+	\includegraphics[width=1\linewidth]{images/order_parameter.png}
+	\subcaption{Order parameter.}
+	\end{minipage}
+%
+	\begin{minipage}[b]{.5\linewidth}
+	\centering
+	\includegraphics[width=1\linewidth]{images/lattice_potential.png}
+	\subcaption{Lattice potential.}
+	\end{minipage}
+\caption{Order parameter and lattice potential.}
+\label{fig:self-organization}
+\end{figure}
+\FloatBarrier
