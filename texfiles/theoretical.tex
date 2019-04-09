@@ -23,7 +23,7 @@ H_\text{JC} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{a} \sigma_z 
 \end{align}where $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ and $\Delta_\text{c} = \omega_\text{l} - \omega_\text{c}$.
 
 \section{Detuning}
-In our case, the pumping laser is far detuned from the atomic resonance frequency, i.e. $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ is large. Thus the excitation probability of the atom is vanishing and we neglect the $\sigma_z$-term. Now we derive heuristically a modified Hamiltonian. Going to the Heisenberg picture:
+The derivation for the Hamiltonians for the following sections is taken from \cite{donner}. In our case, the pumping laser is far detuned from the atomic resonance frequency, i.e. $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ is large. Thus the excitation probability of the atom is vanishing and we neglect the $\sigma_z$-term. Now we derive heuristically a modified Hamiltonian. Going to the Heisenberg picture:
 
 \begin{align}
 \dot{a} = \frac{i}{\hbar} [H, a] = i \Delta_\text{c} a - i \eta -i g_0 \cos(kx) \sigma^-.
@@ -43,7 +43,14 @@ In our case, the pumping laser is far detuned from the atomic resonance frequenc
 
 \begin{align}
 H = \frac{p^2}{2m} = V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \hbar U_0 \cos(kx)^2,
-\end{align}where we set $U_0 \coloneqq g_0^2 / \Delta_\text{a}$.
+\end{align}where we set $U_0 \coloneqq g_0^2 / \Delta_\text{a}$. In the simulation we set the external Potential to 0. We want to make sure all quantities are expressed with the recoil energy $E_r = \hbar \omega_r$, where $\omega_r = \hbar k^2 / 2m$ is the recoil frequency. Therefore we factor our $E_r$ to see what we have to type into the program:
+
+\begin{align}
+\begin{split}
+H_\text{long} = \hbar \omega_r \biggl( \frac{1}{\hbar^2 k^2} p^2 + \frac{1}{\hbar \omega_r} V_\text{ext}(x) - \frac{1}{\omega_r} \Delta_c a^\dagger a + \frac{1}{\omega_r} \eta (a + a^\dagger) + \\
+ + \frac{1}{\hbar \omega_r} U_0 \cos(kx)^2 a^\dagger a \biggr).
+\end{split}
+\end{align}In the simulation program, we will thus set $\hbar = 1$ and multiply each quantity by the preceding factors.
 
 \section{Transversal Pump}
 
@@ -54,7 +61,14 @@ Now we want to focus our attention at a different case where the laser is incide
 H_\text{trans} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a  + \hbar \eta \cos(kx) \cos(kz) (a + a^\dagger) + \\
 + \hbar \frac{\Omega^2}{\Delta_\text{a}} \cos(kz)^2 + \hbar U_0 \cos(kx)^2 a^\dagger a,
 \end{split}
-\end{align}where $\Omega$ is the Rabi frequency. Now we get an an effective long-range atom-atom interaction. The periodicity of the potential which is destructive for $\lambda / 2$ and constructive for $\lambda$. The atoms either minimize energy by being homogeneously distributed or by being localized at local potential minima. With the pump strength $\eta$ we control which configuration the atoms "choose". We define an \textit{order parameter} $\Theta$, which indicates whether the atoms are uniformly distributed or localized at potential minima:
+\end{align}where $\Omega$ is the Rabi frequency. Now we get an an effective long-range atom-atom interaction. The periodicity of the potential which is destructive for $\lambda / 2$ and constructive for $\lambda$. The atoms either minimize energy by being homogeneously distributed or by being localized at local potential minima. With the pump strength $\eta$ we control which configuration the atoms "choose". Again, in the simulation we set the external potential to 0. Here we only consider one dimension, so we set $z=0$:
+
+\begin{align}
+\begin{split}
+H_\text{transv} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_c a^\dagger a - \hbar \eta \cos(kx) (a + a^\dagger) + \\
+ + \hbar U_0 \cos(kx)^2 a^\dagger a.
+\end{split}
+\end{align}As previously mentioned, keeping the right dimensionality in the simulation is very important. We define an \textit{order parameter} $\Theta$, which indicates whether the atoms are uniformly distributed or localized at potential minima:
 
 \begin{align}
 \Theta \coloneqq \langle \psi | \cos(kx) | \psi \rangle.
@@ -63,13 +77,13 @@ H_\text{trans} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dag
 \begin{figure}[!htb]
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
-	\includegraphics[width=1\linewidth]{images/order_parameter.png}
+	\includestandalone[width=1\linewidth]{standalone/order_parameter}
 	\subcaption{Order parameter.}
 	\end{minipage}
 %
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
-	\includegraphics[width=1\linewidth]{images/lattice_potential.png}
+	\includestandalone[width=1\linewidth]{standalone/lattice_potential}
 	\subcaption{Lattice potential.}
 	\end{minipage}
 \caption{Order parameter and lattice potential.}
