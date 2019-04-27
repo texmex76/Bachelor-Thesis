@@ -1,39 +1,62 @@
-\section{Simulation in QuantumOptics.jl}
+\section{Simulation}
+Having derived our Hamiltonians, we'll now set out to numerically simulate the systems with longitudinal and transversal pump each. In the following sections, we'll present the code necessary to simulate the quantum systems. However, any code to generate graphs will not be presented.
+
+\subsection{The Julia language QuantumOptics.jl}
+Scientific computing requires high performance which low-level languages like C or Fortran can deliver. However, writing scripts in these languages can often be cumbersome. Julia is a programming language that combines the ease of use of high level languages and performance of low level languages \cite{julialang}. Here we use Julia for our simulations with the framework QuantumOptics.jl \cite{qojulia}. The architecture of the functions of the package will not be discussed. A detailed documentation can be found at \cite{documentation}.
 
 \subsection{Simulation for Longitudinal Pump}
-
 First, we'll add all the packages that we need:
 
 \begin{lstlisting}
-using QuantumOptics, PyPlot, Printf, LinearAlgebra
+using QuantumOptics, LinearAlgebra
+\end{lstlisting}The package \texttt{QuantumOptics} is the quantum simulation package mentioned earlier and \texttt{LinearAlgebra} is a package that comes with some useful functions like getting the diagonal entries of a matrix \texttt{diag()}. We'll set $k=2\pi$, so that $\lambda=1$. The recoil frequency we set $\omega_\text{r} = 1$ and $\Delta_\text{c} = -3 \, \omega_\text{r}$ and $U_0 = -1 \, \omega_\text{r}$:
+
+\begin{lstlisting}
+k = 2*π
+ωr = 1
+Δc = -300 * ωr
+U0 = -100 * ωr
+\end{lstlisting}We'll allow a maximum of $N = 16$ states. We'll confine the simulation spatially to $x_\text{min} = 0$ and $x_\text{max} = 1$. Setting a wider range would be redundant since the transversal Hamiltonian is $\lambda$-periodic. Thus, we could actually set $x_\text{max} = 0.5$ for the $\lambda/2$-periodic longitudinal Hamiltonian, but we'll set same boundaries for both Hamiltonians for better comparability with the graphs. Usually, the step size is set to $\text{Nsteps} = 2^n$, where $n \in \mathbb{N}$. Here, we set $\text{Nsteps} = 64$ for a good compromise between simulation time and the look of the graphs.
+
+\begin{lstlisting}
+N_cutoff = 16
+xmin = 0
+xmax = 1
+Nsteps = 32
 \end{lstlisting}We define the bases, as well as the raising and lowering operators:
 
 \begin{lstlisting}
 b_position = PositionBasis(xmin, xmax, Nsteps)
 b_fock = FockBasis(N_cutoff)
-
 p = momentum(b_position)
-
 a = destroy(b_fock) ⊗ one(b_position)
-ad = dagger(a);
-\end{lstlisting}We define the Hamiltonian and calculate the ground and first and second excited states:
+ad = dagger(a)
+\end{lstlisting}The raising and lowering operators are a tensor product of the position and Fock basis. Note that in Julia it's possible to name variables with Greek symbols. In this case, the tensor product is defined with the symbol $\otimes$. We define the Hamiltonian and calculate the first three states with $\eta = 23 \, \omega_\text{r}$:
 
 \begin{lstlisting}
 potential = x -> U0*cos(k*x)^2
 H_int = (one(b_fock) ⊗ potentialoperator(b_position, potential))*ad*a
 H_kin = (one(b_fock) ⊗ p^2) / k^2
-H_pump = η*(a + ad)
 H_cavity = -Δc*ad*a
-H = H_kin + dense(H_int) + H_pump + H_cavity
 
-E, ψ_states = eigenstates((H + dagger(H))/2, 3);
-\end{lstlisting}If we want to plot the wave function, we'll have to extract the position part of the composite basis. We can do that with the command \texttt{ptrace()}:
+function H(η)
+    pump = x -> η*cos(k*x)
+    H_pump = (one(b_fock) ⊗ potentialoperator(b_position, pump)) * (a + ad)
+    return H_kin + dense(H_int) + H_pump + H_cavity
+end
+
+η = 23 * ωr
+E, ψ_states = eigenstates((H(η) + dagger(H(η)))/2, 3)
+\end{lstlisting}If we want to plot the wave function, we'll have to extract the position part of the composite basis. We can do that with the command \texttt{ptrace()}. We thus obtain a matrix whose diagonal entries are the complex values of the wave function:
 
 \begin{lstlisting}
 pos_dense = ptrace(ψ_states[1], 1)
 density = diag(pos_dense.data)
-ada_exp = expect(ad*a, ψ_states[i])
-\end{lstlisting} We can also plot the momentum distribution:
+\end{lstlisting} Likewise, by changing the second argument of \texttt{ptrace()} to 2, we trace out the position basis. The diagonal entries of the obtained matrix represents the photon number distribution. We can calculate the expected photon number as follows:
+
+\begin{lstlisting}
+ada_exp = expect(ad*a, ψ_states[1])
+\end{lstlisting}We can also plot the momentum distribution:
 
 \begin{lstlisting}
 b_momentum = MomentumBasis(b_position)
@@ -42,7 +65,7 @@ Tpx = transform(b_momentum, b_position)
 pos_dense = ptrace(ψ_states[1], 1)
 states_p = Tpx * pos_dense
 density_p = diag(states_p.data)
-\end{lstlisting}For the photon number distribution, we trace out the position basis to get only the Fock basis.
+\end{lstlisting}
 
 \subsection{Simulation for transversal pump}
 
@@ -52,17 +75,21 @@ The bases are the same as before. However, we have to define different Hamiltoni
 potential = x -> U0*cos(k*x)^2
 H_int = (one(b_fock) ⊗ potentialoperator(b_position, potential))*ad*a
 H_kin = (one(b_fock) ⊗ p^2) / k^2
-pump = x -> η*cos(k*x)
-H_pump = (one(b_fock) ⊗ potentialoperator(b_position, pump)) * (a + ad)
 H_cavity = -Δc*ad*a
-H = H_kin + dense(H_int) + H_pump + H_cavity
 
-E, states = eigenstates((H + dagger(H))/2, 1);
+function H(η)
+    pump = x -> η*cos(k*x)
+    H_pump = (one(b_fock) ⊗ potentialoperator(b_position, pump)) * (a + ad)
+    return H_kin + dense(H_int) + H_pump + H_cavity
+end
+
+η = 60 * ωr
+E, ψ_states = eigenstates((H(η) + dagger(H(η)))/2, 3)
 \end{lstlisting} To visualize the degree of self-organization, we'll use the Husimi Q representation of the ground state. This can be achieved with the command \texttt{qfunc()}:
 
 \begin{lstlisting}
-boundary = 3.6
-xvec = [-boundary:.1:boundary;]
-yvec = [-boundary:.1:boundary;]
+bdr = 6
+xvec = [-bdr:.1:bdr;]
+yvec = [-bdr:.1:bdr;]
 grid = qfunc(ptrace(states[1], 2), xvec, yvec)
-\end{lstlisting}The variable \texttt{boundary} was set heuristically for plotting.
+\end{lstlisting}The variable \texttt{bdr} was set heuristically for plotting. The maximum value of \texttt{qfunc} with respect to the origin gives us the previously defined order parameter $\Theta$.
