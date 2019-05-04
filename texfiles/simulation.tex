@@ -1,21 +1,21 @@
 \section{Simulation}
 Having derived our Hamiltonians, we'll now set out to numerically simulate the systems with longitudinal and transversal pump each. In the following sections, we'll present the code necessary to simulate the quantum systems. However, any code to generate graphs will not be presented.
 
-\subsection{The Julia language QuantumOptics.jl}
+\subsection{The Julia language and QuantumOptics.jl}
 Scientific computing requires high performance which low-level languages like C or Fortran can deliver. However, writing scripts in these languages can often be cumbersome. Julia is a programming language that combines the ease of use of high level languages and performance of low level languages \cite{julialang}. Here we use Julia for our simulations with the framework QuantumOptics.jl \cite{qojulia}. The architecture of the functions of the package will not be discussed. A detailed documentation can be found at \cite{documentation}.
 
-\subsection{Simulation for Longitudinal Pump}
+\subsection{The Code}
 First, we'll add all the packages that we need:
 
 \begin{lstlisting}
 using QuantumOptics, LinearAlgebra
-\end{lstlisting}The package \texttt{QuantumOptics} is the quantum simulation package mentioned earlier and \texttt{LinearAlgebra} is a package that comes with some useful functions like getting the diagonal entries of a matrix \texttt{diag()}. We'll set $k=2\pi$, so that $\lambda=1$. The recoil frequency we set $\omega_\text{r} = 1$ and $\Delta_\text{c} = -3 \, \omega_\text{r}$ and $U_0 = -1 \, \omega_\text{r}$:
+\end{lstlisting}The package \texttt{QuantumOptics} is the quantum simulation package mentioned earlier and \texttt{LinearAlgebra} is a package that comes with some useful functions like getting the diagonal entries of a matrix \texttt{diag()}. We'll set $k=2\pi$, so that $\lambda=1$. The recoil frequency we set $\omega_\text{r} = 1$ and $\Delta_\text{c} = -10 \, \omega_\text{r}$ and $U_0 = -1 \, \omega_\text{r}$:
 
 \begin{lstlisting}
 k = 2*π
 ωr = 1
-Δc = -300 * ωr
-U0 = -100 * ωr
+Δc = -10 * ωr
+U0 = -1 * ωr
 \end{lstlisting}We'll allow a maximum of $N = 16$ states. We'll confine the simulation spatially to $x_\text{min} = 0$ and $x_\text{max} = 1$. Setting a wider range would be redundant since the transversal Hamiltonian is $\lambda$-periodic. Thus, we could actually set $x_\text{max} = 0.5$ for the $\lambda/2$-periodic longitudinal Hamiltonian, but we'll set same boundaries for both Hamiltonians for better comparability with the graphs. Usually, the step size is set to $\text{Nsteps} = 2^n$, where $n \in \mathbb{N}$. Here, we set $\text{Nsteps} = 64$ for a good compromise between simulation time and the look of the graphs.
 
 \begin{lstlisting}
@@ -52,11 +52,16 @@ E, ψ_states = eigenstates((H(η) + dagger(H(η)))/2, 3)
 \begin{lstlisting}
 pos_dense = ptrace(ψ_states[1], 1)
 density = diag(pos_dense.data)
-\end{lstlisting} Likewise, by changing the second argument of \texttt{ptrace()} to 2, we trace out the position basis. The diagonal entries of the obtained matrix represents the photon number distribution. We can calculate the expected photon number as follows:
+\end{lstlisting} Likewise, by changing the second argument of \texttt{ptrace()} to 2, we trace out the position basis. The diagonal entries of the obtained matrix represents the photon number distribution:
+
+\begin{lstlisting}
+photon_dense = ptrace(ψ_states[1], 2)
+probab = diag(photon_dense.data)
+\end{lstlisting}We can calculate the expected photon number as follows:
 
 \begin{lstlisting}
 ada_exp = expect(ad*a, ψ_states[1])
-\end{lstlisting}We can also plot the momentum distribution:
+\end{lstlisting}We can also calculate the momentum distribution which is the Fourier transform of the position distribution. The function \texttt{transform()} performs a Fourier transform in the background:
 
 \begin{lstlisting}
 b_momentum = MomentumBasis(b_position)
@@ -65,11 +70,7 @@ Tpx = transform(b_momentum, b_position)
 pos_dense = ptrace(ψ_states[1], 1)
 states_p = Tpx * pos_dense
 density_p = diag(states_p.data)
-\end{lstlisting}
-
-\subsection{Simulation for transversal pump}
-
-The bases are the same as before. However, we have to define different Hamiltonians:
+\end{lstlisting}Now let's tackle the transversal pump. The bases are the same as before. However, we have to define different Hamiltonians:
 
 \begin{lstlisting}
 potential = x -> U0*cos(k*x)^2
@@ -83,13 +84,22 @@ function H(η)
     return H_kin + dense(H_int) + H_pump + H_cavity
 end
 
-η = 60 * ωr
+η = 10 * ωr
 E, ψ_states = eigenstates((H(η) + dagger(H(η)))/2, 3)
-\end{lstlisting} To visualize the degree of self-organization, we'll use the Husimi Q representation of the ground state. This can be achieved with the command \texttt{qfunc()}:
+\end{lstlisting}To visualize the degree of self-organization, we'll take a look at the photon state. The Husimi Q representation is a way of visualizing a wave function. It's defined as follows:
+
+\begin{align}
+Q(\alpha) = \frac{1}{\pi} \langle \alpha | \rho | \alpha \rangle,
+\end{align}where $\alpha$ is the state we want to visualize and $\rho$ is the density operator:
+
+\begin{align}
+\rho = |\psi \rangle \langle \psi |.
+\end{align}In Julia with QuantumOptics.jl, we can use the command \texttt{qfunc()}:
 
 \begin{lstlisting}
 bdr = 6
 xvec = [-bdr:.1:bdr;]
 yvec = [-bdr:.1:bdr;]
-grid = qfunc(ptrace(states[1], 2), xvec, yvec)
+photon_dense = ptrace(ψ_states[1], 2)
+grid = qfunc(photon_dense, xvec, yvec)
 \end{lstlisting}The variable \texttt{bdr} was set heuristically for plotting. The maximum value of \texttt{qfunc} with respect to the origin gives us the previously defined order parameter $\Theta$.

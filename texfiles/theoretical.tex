@@ -1,9 +1,12 @@
 \section{Introduction}
-Modern laser and trapping techniques allow us to study a wide range phenomena with ultra-cold atoms. Traditionally, a fixed potential by a laser was being used, e.g. tow opposing laser beams. However, with such a setup several areas of condensed matter research (such as supersolidity, etc.) remain inaccessible due to the rigid nature of the laser potential. If we, however, place the atoms in a cavity, they will interact with the cavity mode and self-induce a potential, thus enabling us to study a wider range of phenomena. Consider a Bose-Einstein Condensate (BEC) in a cavity interacting with the cavity mode and a pump laser. Atoms coherently scatter light of the laser, those separated by $\lambda_\text{cav}$ emit in phase and populate the cavity with photons, leading to enhancement of atom-cavity coupling. If the laser is far red-detuned, the atoms will couple more strongly to the cavity, trapping them at even or odd antinodes which leads to even more superradience and stronger coupling. A steady state is reached when the energetic gain from superradience is balanced by the kinetic energy of repulsion.
+We're constantly looking for materials with specific properties that can make our lives easier. To find a new material that fits our needs, we could look for it in nature. That means we'd go digging in the earth until we find something new, isolate it, take it to the lab, determine its properties and hope we found what we needed. This process is quite cumbersome and as technology gets more and more advanced, we'll find ourselves in need of materials that might not be naturally occurring in the first place. In that case we need to determine whether such materials could theoretically exist at all and if so, what are the requirements a compound needs to have in order to have a specific property? To find out, we conduct simulations which we're already doing very rigorously right now. However, when simulating quantum many-body systems, the Hilbert space scales dramatically and our conventional devices will fail.
 
+One solution to this is to use a quantum computer. Algorithms with exponential time on classical devices would operate then on polynomial time. There's just one problem: We don't have a sophisticated quantum computer yet and will likely not have one in the next 10-20 years, at least for our specific purposes. So rather then utilizing a general-purpose quantum computer, for now there's another approach that's more fruitful: We'll restrict ourselves to a specific problem by constructing a quantum system that simulates another quantum system. Such a system won't be able to simulate anything, just what we designed it for. This is called an \textit{Analog Quantum Simulator}. With Analog Quantum Simulators, we can not only simulate properties of compounds, but any quantum problem that we wish to solve. A nice introduction to quantum simulation can be found at \cite{quantum_sanchez}.
 
-\section{Optical cavities}
-There are different types of cavities, such as the bow-tie, the ring and the Fabry-Perot cavity. In the case of the Fabry-Perot cavity, there are two curved mirrors separated by a distance $d$. If $d = n \lambda / 2$, the system is in resonance and there's a strong light field in the cavity. Thus boundary conditions on light space determine the modes of the frequency space. An illustration of a Fabry-Perot cavity with longitudinal and transversal pumping can be seen in Figure~\ref{pumping}.
+\section{Cold Atoms in Optical Cavities}
+What we want to achieve is to order atoms in a lattice to simulate a solid. To prevent them from flying away, we have to fix them in space somehow. A great way to do this is to use a laser potential, e.g. two opposing laser beams. The atoms will localize at the antinodes of the laser potential to minimize the energy. We'll take that approach one step further and put the atoms in a cavity. That way the atoms themselves take part in creating an optical potential which confines them.
+
+There are different types of cavities, such as the bow-tie, the ring and the Fabry-Perot cavity. We will utilize the Fabry-Perot cavity. There are two curved mirrors separated by a distance $d$. We shoot a laser with wavelength $\lambda$ into the cavity, which can be done longitudinally or transversally, as illustrated in Figure~\ref{pumping}. We choose $d$ and $\lambda$, such that $d = n \lambda / 2$, where $n \in \mathrm{N}$. The light along the cavity axis will be amplified which is what we want. We will work with a far red-detuned laser, that means the frequency of the laser $\omega_\text{l}$ is way smaller than the excitation frequency of atom $\omega_\text{a}$. If we prevent the atom from being excited, a strong dipole force will build up and the atom will get strongly coupled to the cavity field. There is a fundamental difference how atoms scatter light in a transversally pumped cavity and in a longitudinally pumped cavity. In the longitudinal case, if a photon with momentum $\hbar k$ in $x$-direction bumps into an atom, it will recoil backward, having now a momentum $-\hbar k$. Momentum conversation thus requires the atom to have now a momentum of $2\hbar k$. In the transversal case, there are two counter-propagating laser beams as to prevent kicking the atoms out of the cavity. If an atom scatters a transversally incoming photon along the cavity axis, it will now have a momentum of $\hbar k$ and the photon $-\hbar k$. We see that the fundamental difference between longitudinal and transversal pump is the momenta the atoms will be able to acquire. In the longitudinal case, there will only be momenta of $2n\hbar k$, where $n \in \mathrm{N}$, whereas for the transversal pump there are momenta of $\hbar k$.
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{.5\linewidth}
@@ -17,7 +20,7 @@ There are different types of cavities, such as the bow-tie, the ring and the Fab
 	\includegraphics[width=.8\linewidth]{images/pump_trans.eps}
 	\subcaption{Transversal pumping.}
 	\end{minipage}
-\caption{Longitudinal and transversal pumping.}
+\caption{Longitudinal and transversal pumping. For longitudinal pumping, the atoms will acquire a momentum of $2\hbar k$ scattering a photon, whereas for transversal pumping there is momentum exchange of $\hbar k$.}
 \label{pumping}
 \end{figure}
 \FloatBarrier
@@ -53,17 +56,21 @@ H_\text{pump} = \hbar \eta (a e^{i\omega_\text{l}t} + a^\dagger e^{-i\omega_\tex
 H_\text{JC} = \underbrace{p^2 / 2m}_\text{atom} + \underbrace{V_\text{ext}(x)}_\text{external potential} - \underbrace{1/2 \hbar \omega_\text{a} \sigma_z}_\text{atomic transitions} - \underbrace{\hbar \omega_\text{c} a^\dagger a}_\text{field} + \underbrace{\hbar \eta (a e^{i \omega_\text{l} t} + a^\dagger e^{-i \omega_\text{l} t})}_\text{pumping} + \\
 + \underbrace{\hbar g_0 \cos(kx) (\sigma^+ a + \sigma^- a^\dagger)}_\text{field-atom interaction}.
 \end{split}
-\end{align}A more detailed derivation of the Jaynes-Cummings Hamiltonian (starting from Maxwell's equations and quantizing the cavity mode) can be found at \cite{collapseandrevival}. In order to get rid of the explicit time-dependence, we transform the Hamiltonian to a frame rotating with $\omega_\text{l}$. The Hamiltonian now reads:
+\end{align}A more detailed derivation of the Jaynes-Cummings Hamiltonian (starting from Maxwell's equations and quantizing the cavity mode) can be found at \cite{collapseandrevival}. At this point we should probably clarify that we have a composite system, i.e.
+
+\begin{align}
+\psi_\text{total} = \psi_\text{light} \otimes \psi_\text{atom}.
+\end{align}In order to get rid of the explicit time-dependence, we transform the Hamiltonian to a frame rotating with $\omega_\text{l}$. The Hamiltonian now reads:
 
 \begin{align}
 \begin{split}
-H_\text{JC} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{a} \sigma_z - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \\
+H_\text{JC} = \frac{p^2}{2m} + V_\text{ext}(x) - \frac{1}{2} \hbar \Delta_\text{a} \sigma_z - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \\
 + \hbar g_0 \cos(kx) (\sigma^+ a + \sigma^- a^\dagger),
 \end{split}
 \end{align}where $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ and $\Delta_\text{c} = \omega_\text{l} - \omega_\text{c}$.
 
 \subsection{Detuning}
-The derivation for the Hamiltonians for the following sections is taken from \cite{donner}. In our case, the pumping laser is far detuned from the atomic resonance frequency, i.e. $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ is large. Thus the excitation probability of the atom is vanishing and we approximate $\sigma_z \approx 1/2$ because the atom stays mostly in the ground state. Now we derive heuristically a modified Hamiltonian. Going to the Heisenberg picture, we get:
+The derivation for the Hamiltonians for the following sections is taken from \cite{donner}. Now we derive heuristically a modified Hamiltonian. Going to the Heisenberg picture, we get:
 
 \begin{align}
 \dot{a} = \frac{i}{\hbar} [H, a] = i \Delta_\text{c} a - i \eta -i g_0 \cos(kx) \sigma^-.
@@ -74,12 +81,20 @@ The derivation for the Hamiltonians for the following sections is taken from \ci
 a^\dagger a = N \qquad [N, a] = -a \\
 (a + a^\dagger) a - a (a + a^\dagger) = aa + a^\dagger a - aa - aa^\dagger & = 1 \\
 \text{because we know:} \quad aa^\dagger & = a^\dagger a + 1 \nonumber \\
-?? \quad \text{idk, check with instructor}
-\end{align}A good reference for the commutator relation is \cite{bertlmann}. The time-derivative for the raising operator reads:
+[\sigma^+ a + \sigma^- a^\dagger, a] = \sigma^+ \underbrace{[a, a]}_{0} + \sigma^- \underbrace{[a^\dagger, a]}_{1} = \sigma^-
+\end{align}The creation and annihilation operators ($a^\dagger$ and $a$) and the raising and lowering operators ($\sigma^+$ and $\sigma^-$) live in different Hilbert spaces and thus don't influence each other. A good reference for the commutator relation is \cite{bertlmann}. The time-derivative for the raising operator reads:
 
 \begin{align}
-\dot{\sigma}^+ = -i \Delta_\text{a} \sigma^+ + i g_0 \cos(kx) a^\dagger.
-\end{align}We're not interested in fast dynamics, so we set $\dot{\sigma}^+ = 0$. We obtain
+\dot{\sigma}^+ = \frac{i}{\hbar} [H, \sigma^+] = \underbrace{-i \Delta_\text{a} \sigma^+}_{(*)} + \underbrace{i g_0 \cos(kx) a^\dagger}_{(**)}.
+\end{align}For (*), we'll look at the matrix representation of the operators:
+
+\begin{align}
+\sigma^+ = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} \quad \sigma^- = \begin{pmatrix}0 & 0 \\ 1 & 0\end{pmatrix} \quad \sigma_z = \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix}.
+\end{align}We calculate the commutator relation $[\sigma_z, \sigma^+]$ explicitly:
+
+\begin{align}
+[\sigma_z, \sigma^+] = \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix} \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} - \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix} = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} - \begin{pmatrix}0 & -1 \\ 0 & 0\end{pmatrix} = 2\sigma^+.
+\end{align}For (**), consider that $[\sigma^+, \sigma^-] = 1$. In our case, the pumping laser is far detuned from the atomic resonance frequency, i.e. $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ is large. Thus the excitation probability of the atom is vanishing and we set $\dot{\sigma}^+ = 0$. We get:
 
 \begin{align}
 \sigma^+ = \frac{g_0 }{\Delta_\text{a}} \cos(kx) a^\dagger && \sigma^- = \frac{g_0 }{\Delta_\text{a}} \cos(kx) a.
@@ -90,7 +105,7 @@ a^\dagger a = N \qquad [N, a] = -a \\
 \end{align}We can thus make a guess of the effective Hamiltonian:
 
 \begin{align}
-H_\text{long} = \frac{p^2}{2m} = V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \hbar U_0 \cos(kx)^2,
+H_\text{long} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \hbar U_0 \cos(kx)^2,
 \end{align}where we set $U_0 \coloneqq g_0^2 / \Delta_\text{a}$. Note that because $H_\text{long} \propto \cos(kx)^2$, the Hamiltonian is $\lambda / 2$-periodic. Later in the simulation program, we want to make sure all quantities are expressed with the recoil energy $E_r = \hbar \omega_r$, where $\omega_r = \hbar k^2 / 2m$ is the recoil frequency. Therefore we factor our $E_r$ to see what we have to type into the program:
 
 \begin{align}
@@ -109,7 +124,7 @@ Now we want to focus our attention at a different case where the laser is incide
 H_\text{trans} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a  + \hbar \eta \cos(kx) \cos(kz) (a + a^\dagger) + \\
 + \hbar \frac{\Omega^2}{\Delta_\text{a}} \cos(kz)^2 + \hbar U_0 \cos(kx)^2 a^\dagger a,
 \end{split}
-\end{align}where $\Omega$ is the Rabi frequency. Now we get an an effective long-range atom-atom interaction. The periodicity of the potential which is destructive for $\lambda / 2$ and constructive for $\lambda$. The atoms either minimize energy by being homogeneously distributed or by being localized at local potential minima. With the pump strength $\eta$ we control which configuration the atoms "choose". Here we only consider one dimension, so we set $z=0$:
+\end{align}where $\Omega$ is the Rabi frequency. Let's look at the pump term a little more: When transversally pumping, there are two counter-propagating laser beams. We thus have to consider photons traveling in positive $z$-direction $\psi_\text{photon} \propto \exp(ikx)$ and negative $z$-direction $\psi_\text{photon} \propto \exp(-ikz)$. Combined we obtain the cosine term. For the $x$-direction, we can argue similarly: when an atom scatters a photon, we have to consider $\exp(ikx)$ and $\exp(-ikx)$. Here we only consider one dimension, so we set $z=0$:
 
 \begin{align}
 \begin{split}
