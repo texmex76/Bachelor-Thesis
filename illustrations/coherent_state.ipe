@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70206" creator="Ipe 7.2.11">
-<info created="D:20190503102221" modified="D:20190505113210"/>
+<info created="D:20190505113936" modified="D:20190505123912"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -254,96 +254,49 @@ h
 <page>
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
-<path layer="alpha" matrix="0.5 0 0 0.5 40 376" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
+<path layer="alpha" stroke="black" arrow="normal/normal">
+64 640 m
+64 768 l
 </path>
-<path matrix="0.5 0 0 0.5 72 376" stroke="black" dash="dotted">
-16 0 0 16 64 768 e
+<path stroke="black" arrow="normal/normal">
+64 640 m
+192 640 l
 </path>
-<path matrix="0.5 0 0 0.5 104 376" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
+<path matrix="1.5 0 0 1.5 -76 -364" fill="0.961 0.475 0">
+8 0 0 8 152 728 e
 </path>
-<path matrix="0.5 0 0 0.5 40 344" stroke="black" dash="dotted">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 72 344" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 104 344" stroke="black" dash="dotted">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 40 312" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 72 312" stroke="black" dash="dotted">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 104 312" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
+<path stroke="black" pen="fat" arrow="normal/normal">
+64 640 m
+152 728 l
 </path>
 <path stroke="black">
-72 780 m
-72 772 l
-</path>
-<path stroke="black" fill="black">
-72 776 m
-136 776 l
+140 752 m
+140 744 l
 </path>
 <path stroke="black">
-136 780 m
-136 772 l
+140 748 m
+164 748 l
 </path>
-<text matrix="1 0 0 1 4 -4" transformations="translations" pos="96 784" stroke="black" type="label" width="6.828" height="8.302" depth="0" valign="baseline" size="large" style="math">\lambda</text>
-<path matrix="1 0 0 1 -4 0" stroke="black" arrow="normal/normal">
-152 728 m
-176 728 l
+<path stroke="black">
+164 752 m
+164 744 l
 </path>
-<path matrix="0.5 0 0 0.5 152 376" stroke="0" dash="dotted">
-16 0 0 16 64 768 e
+<path stroke="black">
+172 740 m
+172 716 l
 </path>
-<path matrix="0.5 0 0 0.5 184 376" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
+<path stroke="black">
+168 740 m
+176 740 l
 </path>
-<path matrix="0.5 0 0 0.5 216 376" stroke="0" dash="dotted">
-16 0 0 16 64 768 e
+<path stroke="black">
+168 716 m
+176 716 l
 </path>
-<path matrix="0.5 0 0 0.5 152 344" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 184 344" stroke="0" dash="dotted">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 216 344" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 152 312" stroke="0" dash="dotted">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 184 312" fill="0.2 0.486 0.682">
-16 0 0 16 64 768 e
-</path>
-<path matrix="0.5 0 0 0.5 216 312" stroke="0" dash="dotted">
-16 0 0 16 64 768 e
-</path>
-<path matrix="1 0 0 1 112 0" stroke="black">
-72 780 m
-72 772 l
-</path>
-<path matrix="1 0 0 1 112 0" stroke="black" fill="black">
-72 776 m
-136 776 l
-</path>
-<path matrix="1 0 0 1 112 0" stroke="black">
-136 780 m
-136 772 l
-</path>
-<text matrix="1 0 0 1 116 -4" transformations="translations" pos="96 784" stroke="black" type="label" width="6.828" height="8.302" depth="0" valign="baseline" size="large" style="math">\lambda</text>
-<path matrix="1 0 0 1.47058 0 -351.993" stroke="1">
-64 748 m
-64 680 l
-256 680 l
-256 748 l
-h
-</path>
+<text matrix="1 0 0 1 0 -4" transformations="translations" pos="136 760" stroke="black" type="label" width="45.565" height="7.473" depth="2.49" valign="baseline" style="math">\Delta X = 1/2</text>
+<text matrix="1 0 0 1 -4 0" transformations="translations" pos="180 724" stroke="black" type="label" width="44.31" height="7.473" depth="2.49" valign="baseline" style="math">\Delta P = 1/2</text>
+<text matrix="1 0 0 1 8 -8" transformations="translations" pos="88 700" stroke="black" type="label" width="11.945" height="7.473" depth="2.49" valign="baseline" style="math">|\alpha|</text>
+<text matrix="1 0 0 1 8 4" transformations="translations" pos="176 624" stroke="black" type="label" width="9.036" height="6.808" depth="0" valign="baseline" style="math">X</text>
+<text matrix="1 0 0 1 4 4" transformations="translations" pos="48 760" stroke="black" type="label" width="7.78" height="6.808" depth="0" valign="baseline" style="math">P</text>
 </page>
 </ipe>

@@ -1,6 +1,6 @@
 \section{Results and Discussion}
 
-The longitudinal and transversal spatial wave function densities for $\eta = 10 \, \omega_\text{r}$ are depicted in Figure~\ref{densities}. The leftmost state is the first eigenstate, the second eigenstate is in the middle and the third on the right. Both for longitudinal and transversal pump, because of equal contributions of $a$ and $a^\dagger$, the spatial densities are $\lambda / 2$-periodic. The energy is the lowest of the first eigenstate and increasing with each one. Each peak of the ground state density being located at the potential minima is in accordance with our expectations. However, these graphs don't give us enough insight into the physical processes of the system. For that purpose, looking at the momentum space is more fruitful.
+The longitudinal and transversal spatial wave function densities for $\eta = 10 \, \omega_\text{r}$ are depicted in Figure~\ref{densities}. The leftmost state is the first eigenstate, the second eigenstate is in the middle and the third on the right. Both for longitudinal and transversal pump, because of equal contributions of $a$ and $a^\dagger$, the spatial densities are $\lambda / 2$-periodic. The first eigenstate has the lowest energy. Each peak of the ground state density being located at the potential minima is in accordance with our expectations. However, these graphs don't give us enough insight into the physical processes of the system. For that purpose, looking at the momentum space is more fruitful.
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{1\linewidth}
@@ -16,7 +16,7 @@ The longitudinal and transversal spatial wave function densities for $\eta = 10 
 	\subcaption{Transversal.}
 	\label{trans_density}
 	\end{minipage}
-\caption{Longitudinal and transversal wave function densities for $\eta = 10 \, \omega_\text{r}$. The first eigenstate is on the left, the second in the middle and the third on the right.}
+\caption{Longitudinal and transversal wave function densities for $\eta = 10 \, \omega_\text{r}$. The first eigenstate is on the left, the second in the middle and the third on the right. The wave function densities being located at potential minima meets our expectation, however much of the physics of the system remains hidden to us in this plot. The momentum plot gives us more insight.}
 \label{densities}
 \end{figure}
 \FloatBarrier
@@ -61,7 +61,8 @@ The longitudinal and transversal spatial wave function densities for $\eta = 10 
 \end{figure}
 \FloatBarrier
 
-\noindent The Husimi Q representation of both longitudinal and transversal pump can be seen in Figure~\ref{qfunc}.
+\noindent The Husimi Q representation of the photon states of both longitudinal and transversal pump can be seen in Figure~\ref{qfunc}. We remind ourselves that the $x$-axis represents the position while the $y$-axis represents the momentum of the state. To each state there's a quantum uncertainty of $1/2$, thus we don't see a point but a blob. At $\eta = 0$, there's no momentum since we don't pump at all and the blob is in the center. For longitudinal pumping, increasing $\eta$ will directly result in more photon momentum and the blob rises. That's not the case for transversal pumping. Initially, increasing $\eta$ will only result in more momentum uncertainty, hence the blob stretches. At a sufficient pump strength, the blob will separate into two. Two blobs means we're actually looking at the superposition of two states that are symmetric. Before the separation, the highest probability of the momentum is still at 0 meaning that when we pump transversally, the light field initially resists self-ordering.
+
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{1\linewidth}
@@ -75,12 +76,12 @@ The longitudinal and transversal spatial wave function densities for $\eta = 10 
 	\includegraphics[width=1\textwidth]{images/qfunc_trans.pdf}
 	\subcaption{Transversal.}
 	\end{minipage}
-\caption{Husimi Q representation of longitudinal and transversal wave functions.}
+\caption{Husimi Q representation of photon states for longitudinal and transversal pumping. The $y$-axis represents the momentum of the state. For longitudinal pumping, increasing $\eta$ directly results in more momentum. For transversal pumping, the state initially resists and the mean of the momentum stays at 0. Only at sufficient pump strengths, the momentum will rise which indicates self-ordering of the system. Observing two blobs for transversal pumping means we're actually looking at the superposition of two symmetric states.}
 \label{qfunc}
 \end{figure}
 \FloatBarrier
 
-\noindent At $\eta = 0$, we see for both cases a blob at the center. Actually, it'd be just a point, but there's a quantum uncertainty. For transversal pump, we can see that two blobs separate with increasing pump strength. If we were to measure the system experimentally, we'd only obtain one blob since measuring means breaking the symmetry. The superposition is also reflected in the fact that the graph of Figure~\ref{densities} with transversal pumping is $\lambda / 2$-periodic. Actually, it should be $\lambda$-periodic. Figure~\ref{densities_superposition} illustrates the superposition and the lattice of the atoms.
+\noindent If we were to measure the system experimentally, we'd only obtain one blob since measuring means breaking the symmetry. The superposition is also reflected in the fact that the graph of Figure~\ref{densities} with transversal pumping is $\lambda / 2$-periodic. Actually, it should be $\lambda$-periodic. Figure~\ref{densities_superposition} illustrates the superposition and the lattice of the atoms.
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{.5\linewidth}
@@ -94,14 +95,12 @@ The longitudinal and transversal spatial wave function densities for $\eta = 10 
 	\includegraphics[width=.9\textwidth]{images/density_superposition.pdf}
 	\subcaption{Densities.}
 	\end{minipage}
-\caption{Lattice and superposition of densities.}
+\caption{Lattice configuration and superposition of densities. If we were to measure the system experimentally, we'd only obtain one lattice pattern. In this simulation, however, we obtain the two configurations simultaneously, thus observing a $\lambda/2$-periodic wave function density.}
 \label{densities_superposition}
 \end{figure}
 \FloatBarrier
 
-\noindent We can break the symmetry artificially by only looking at one half of the graph.
-
-\noindent The order parameter $\Theta$ can be seen in Figure~\ref{fig_order_param}. For longitudinal pumping, there's no threshold at which order sets in rapidly, but a linear increase. For transversal pumping, we can clearly observe such a threshold.
+\noindent We can break the symmetry artificially by only looking at one half of the graph. Figure~\ref{fig_order_param} shows the momentum with the highest probability for longitudinal and transversal pumping. For longitudinal pumping, the momentum increases linearly. The light field gets stronger and stronger and the atoms will order gradually. For transversal pumping, the light field initially does not acquire any momentum which means that the atoms are resisting ordering. At a critical pump strength, we see that the momentum suddenly increases very rapidly and self-ordering of the atoms takes place.
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{.5\linewidth}
@@ -115,7 +114,7 @@ The longitudinal and transversal spatial wave function densities for $\eta = 10 
 	\includegraphics[width=.9\textwidth]{images/theta_trans.pdf}
 	\subcaption{Transversal.}
 	\end{minipage}
-\caption{Order parameter $\Theta$ as a function of the pumping strength $\eta$.}
+\caption{Most likely value of the photon state momentum looking at only the positive side of the phase space for longitudinal and transversal pumping. For longitudinal pumping, the momentum increases gradually. For transversal pumping, the light initially does not gain any momentum, meaning that the atoms resist being in order. At a critical pump strength, a light field suddenly builds up and the atoms self-order.}
 \label{fig_order_param}
 \end{figure}
 \FloatBarrier

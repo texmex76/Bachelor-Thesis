@@ -16,7 +16,7 @@ k = 2*π
 ωr = 1
 Δc = -10 * ωr
 U0 = -1 * ωr
-\end{lstlisting}We'll allow a maximum of $N = 16$ states. We'll confine the simulation spatially to $x_\text{min} = 0$ and $x_\text{max} = 1$. Setting a wider range would be redundant since the transversal Hamiltonian is $\lambda$-periodic. Thus, we could actually set $x_\text{max} = 0.5$ for the $\lambda/2$-periodic longitudinal Hamiltonian, but we'll set same boundaries for both Hamiltonians for better comparability with the graphs. Usually, the step size is set to $\text{Nsteps} = 2^n$, where $n \in \mathbb{N}$. Here, we set $\text{Nsteps} = 64$ for a good compromise between simulation time and the look of the graphs.
+\end{lstlisting}For now, we'll allow a maximum of $N = 16$ photon states. Setting $N_\text{cutoff}$ higher would increase the computational time. However, it might be necessary depending how much photons we have in the cavity which we control with the pumping strength $\eta$. The dangers of setting $N_\text{cutoff}$ too low will be discussed in the Results. We'll confine the simulation spatially to $x_\text{min} = 0$ and $x_\text{max} = 1$. Setting a wider range would be redundant since the transversal Hamiltonian is $\lambda$-periodic. Usually, the step size is set to $N_\text{steps} = 2^n$, where $n \in \mathbb{N}$. Here, we set $N_\text{steps} = 64$ for a good compromise between simulation time and the look of the graphs.
 
 \begin{lstlisting}
 N_cutoff = 16
@@ -31,7 +31,7 @@ b_fock = FockBasis(N_cutoff)
 p = momentum(b_position)
 a = destroy(b_fock) ⊗ one(b_position)
 ad = dagger(a)
-\end{lstlisting}The raising and lowering operators are a tensor product of the position and Fock basis. Note that in Julia it's possible to name variables with Greek symbols. In this case, the tensor product is defined with the symbol $\otimes$. We define the Hamiltonian and calculate the first three states with $\eta = 23 \, \omega_\text{r}$:
+\end{lstlisting}The raising and lowering operators are a tensor product of the position and Fock basis. Note that in Julia it's possible to name variables with Greek symbols. In this case, the tensor product is defined with the symbol $\otimes$. We define the Hamiltonian and calculate the first three states with $\eta = 10 \, \omega_\text{r}$:
 
 \begin{lstlisting}
 potential = x -> U0*cos(k*x)^2
@@ -45,7 +45,7 @@ function H(η)
     return H_kin + dense(H_int) + H_pump + H_cavity
 end
 
-η = 23 * ωr
+η = 10 * ωr
 E, ψ_states = eigenstates((H(η) + dagger(H(η)))/2, 3)
 \end{lstlisting}If we want to plot the wave function, we'll have to extract the position part of the composite basis. We can do that with the command \texttt{ptrace()}. We thus obtain a matrix whose diagonal entries are the complex values of the wave function:
 
@@ -94,7 +94,17 @@ Q(\alpha) = \frac{1}{\pi} \langle \alpha | \rho | \alpha \rangle,
 
 \begin{align}
 \rho = |\psi \rangle \langle \psi |.
-\end{align}In Julia with QuantumOptics.jl, we can use the command \texttt{qfunc()}:
+\end{align}The Q-Function represents the state in phase space, i.e. the $x$-axis is the position and the $y$-axis is the momentum. Here we are dealing with a coherent state $|\alpha\rangle$, where $\alpha = X + iP$ and there's a quantum uncertainty of $1/2$ in each direction. Figure~\ref{coherent_state} shows a coherent state in phase space.
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=.4\linewidth]{images/coherent_state.eps}
+	\caption{Coherent state in phase space. The $x$-axis represents the position and the $y$-axis represents the momentum. To each axis, there is a quantum uncertainty of $1/2$.}
+	\label{coherent_state}
+\end{figure}
+\FloatBarrier
+
+\noindent In Julia with QuantumOptics.jl, we can use the command \texttt{qfunc()} to get the phase space representation of the photon state:
 
 \begin{lstlisting}
 bdr = 6
@@ -102,4 +112,4 @@ xvec = [-bdr:.1:bdr;]
 yvec = [-bdr:.1:bdr;]
 photon_dense = ptrace(ψ_states[1], 2)
 grid = qfunc(photon_dense, xvec, yvec)
-\end{lstlisting}The variable \texttt{bdr} was set heuristically for plotting. The maximum value of \texttt{qfunc} with respect to the origin gives us the previously defined order parameter $\Theta$.
+\end{lstlisting}The variable \texttt{bdr} was set heuristically for plotting.
