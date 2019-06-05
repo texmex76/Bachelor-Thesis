@@ -1,8 +1,8 @@
 \section{Simulation}
-Having derived our Hamiltonians, we'll now set out to numerically simulate the systems with longitudinal and transversal pump each. In the following sections, we'll present the code necessary to simulate the quantum systems. However, any code to generate graphs will not be presented.
+Having derived our Hamiltonians, we'll now set out to numerically simulate the systems (more specifically, the ground state of our Hamiltonians). In the following sections, we'll present the code necessary to simulate the quantum systems. However, any code to generate graphs will not be presented.
 
 \subsection{The Julia language and QuantumOptics.jl}
-Scientific computing requires high performance which low-level languages like C or Fortran can deliver. However, writing scripts in these languages can often be cumbersome. Julia is a programming language that combines the ease of use of high level languages and performance of low level languages \cite{julialang}. Here we use Julia for our simulations with the framework QuantumOptics.jl \cite{qojulia}. The architecture of the functions of the package will not be discussed. A detailed documentation can be found at \cite{documentation}.
+Scientific computing requires high performance which low-level languages like C or Fortran can deliver. However, writing scripts in these languages can often be cumbersome. Julia is a programming language that promises the ease of use of high level-languages and performance of low-level languages \cite{julialang}. We won't go into further details whether that's true or not. So here we use Julia for our simulations. Then we have to ask ourselves how to represent the physical systems on the computer. We could program everything from scratch which everybody doing numerical simulations should probably do a couple times. However, after a while it gets redundant because we're doing the same things over and over again. We will thus use a framework which is called QuantumOptics.jl \cite{qojulia}. With that framework, a lot of functions are executed in the background and as such it's more convenient for us. The architecture of the functions of the package will not be discussed. A detailed documentation can be found at \cite{documentation}.
 
 \subsection{The Code}
 First, we'll add all the packages that we need:
@@ -16,7 +16,7 @@ k = 2*π
 ωr = 1
 Δc = -10 * ωr
 U0 = -1 * ωr
-\end{lstlisting}For now, we'll allow a maximum of $N = 16$ photon states. Setting $N_\text{cutoff}$ higher would increase the computational time. However, it might be necessary depending how much photons we have in the cavity which we control with the pumping strength $\eta$. The dangers of setting $N_\text{cutoff}$ too low will be discussed in the Results. We'll confine the simulation spatially to $x_\text{min} = 0$ and $x_\text{max} = 1$. Setting a wider range would be redundant since the transversal Hamiltonian is $\lambda$-periodic. Usually, the step size is set to $N_\text{steps} = 2^n$, where $n \in \mathbb{N}$. Here, we set $N_\text{steps} = 64$ for a good compromise between simulation time and the look of the graphs.
+\end{lstlisting}For now, we'll allow a maximum of $N = 16$ photon states. Setting $N_\text{cutoff}$ higher would increase the computational time. However, it might be necessary depending how much photons we have in the cavity which depends on the pumping strength $\eta$. The dangers of setting $N_\text{cutoff}$ too low will be discussed in the results. We'll confine the simulation spatially to $x_\text{min} = 0$ and $x_\text{max} = 1$. Setting a wider range would be redundant since the transversal Hamiltonian is $\lambda$-periodic. Usually, the step size is set to $N_\text{steps} = 2^n$, where $n \in \mathbb{N}$. Here, we set $N_\text{steps} = 64$ for a good compromise between simulation time and the look of the graphs.
 
 \begin{lstlisting}
 N_cutoff = 16
@@ -31,28 +31,24 @@ b_fock = FockBasis(N_cutoff)
 p = momentum(b_position)
 a = destroy(b_fock) ⊗ one(b_position)
 ad = dagger(a)
-\end{lstlisting}The raising and lowering operators are a tensor product of the position and Fock basis. Note that in Julia it's possible to name variables with Greek symbols. In this case, the tensor product is defined with the symbol $\otimes$. We define the Hamiltonian and calculate the first three states with $\eta = 10 \, \omega_\text{r}$:
+\end{lstlisting}The raising and lowering operators are a tensor product of the position and Fock basis. Note that in Julia it's possible to name variables with Greek symbols. In this case, the tensor product is defined with the symbol $\otimes$. We define the Hamiltonian and calculate the first three states with $\eta = 30 \, \omega_\text{r}$:
 
 \begin{lstlisting}
+η = 30 * ωr
 potential = x -> U0*cos(k*x)^2
 H_int = (one(b_fock) ⊗ potentialoperator(b_position, potential))*ad*a
 H_kin = (one(b_fock) ⊗ p^2) / k^2
 H_cavity = -Δc*ad*a
+H_pump = η*(a + ad)
+H = dense(H_int) + H_kin + H_cavity + H_pump
 
-function H(η)
-    pump = x -> η*cos(k*x)
-    H_pump = (one(b_fock) ⊗ potentialoperator(b_position, pump)) * (a + ad)
-    return H_kin + dense(H_int) + H_pump + H_cavity
-end
-
-η = 10 * ωr
-E, ψ_states = eigenstates((H(η) + dagger(H(η)))/2, 3)
-\end{lstlisting}If we want to plot the wave function, we'll have to extract the position part of the composite basis. We can do that with the command \texttt{ptrace()}. We thus obtain a matrix whose diagonal entries are the complex values of the wave function:
+E, ψ_states = eigenstates((H + dagger(H))/2, 3)
+\end{lstlisting}Notice that in the last line, instead of \texttt{H} we use \texttt{(H + dagger(H))/2)} to make the Hamiltonian truly Hermitian. Due to numerical errors, the operator $p^2$ is not Hermitian here. If we want to plot the wave function, we'll have to extract the position part of the composite basis. We can do that with the command \texttt{ptrace()}. We thus obtain a matrix whose diagonal entries are the complex values of the wave function:
 
 \begin{lstlisting}
 pos_dense = ptrace(ψ_states[1], 1)
 density = diag(pos_dense.data)
-\end{lstlisting} Likewise, by changing the second argument of \texttt{ptrace()} to 2, we trace out the position basis. The diagonal entries of the obtained matrix represents the photon number distribution:
+\end{lstlisting} We need to add the suffix \texttt{.data} to extract the values of \texttt{pos\_dense}. Otherwise, we'd get an error since the function \texttt{diag()} cannot take objects defined by the quantum optics framework. By changing the second argument of \texttt{ptrace()} to 2, we trace out the position basis. The diagonal entries of the obtained matrix represents the photon number distribution:
 
 \begin{lstlisting}
 photon_dense = ptrace(ψ_states[1], 2)
@@ -62,7 +58,7 @@ probab = diag(photon_dense.data)
 \begin{lstlisting}
 ada_exp = expect(ad*a, ψ_states[1])
 \end{lstlisting}We can also calculate the momentum distribution which is the Fourier transform of the position distribution. The function \texttt{transform()} performs a Fourier transform in the background:
-
+\vspace{0.5em}
 \begin{lstlisting}
 b_momentum = MomentumBasis(b_position)
 Tpx = transform(b_momentum, b_position)
@@ -73,38 +69,35 @@ density_p = diag(states_p.data)
 \end{lstlisting}Now let's tackle the transversal pump. The bases are the same as before. However, we have to define different Hamiltonians:
 
 \begin{lstlisting}
+η = 10 * ωr
 potential = x -> U0*cos(k*x)^2
 H_int = (one(b_fock) ⊗ potentialoperator(b_position, potential))*ad*a
 H_kin = (one(b_fock) ⊗ p^2) / k^2
 H_cavity = -Δc*ad*a
+pump = x -> η*cos(k*x)
+H_pump = (one(b_fock) ⊗ potentialoperator(b_position, pump)) * (a + ad)
+H = H_kin + dense(H_int) + H_pump + H_cavity
 
-function H(η)
-    pump = x -> η*cos(k*x)
-    H_pump = (one(b_fock) ⊗ potentialoperator(b_position, pump)) * (a + ad)
-    return H_kin + dense(H_int) + H_pump + H_cavity
-end
-
-η = 10 * ωr
-E, ψ_states = eigenstates((H(η) + dagger(H(η)))/2, 3)
+E, ψ_states = eigenstates((H + dagger(H))/2, 3)
 \end{lstlisting}To visualize the degree of self-organization, we'll take a look at the photon state. The Husimi Q representation is a way of visualizing a wave function. It's defined as follows:
 
 \begin{align}
 Q(\alpha) = \frac{1}{\pi} \langle \alpha | \rho | \alpha \rangle,
-\end{align}where $\alpha$ is the state we want to visualize and $\rho$ is the density operator:
+\end{align}where $| \alpha \rangle$ is the state we want to visualize and $\rho$ is the density operator of the photon state:
 
 \begin{align}
 \rho = |\psi \rangle \langle \psi |.
-\end{align}The Q-Function represents the state in phase space, i.e. the $x$-axis is the position and the $y$-axis is the momentum. Here we are dealing with a coherent state $|\alpha\rangle$, where $\alpha = X + iP$ and there's a quantum uncertainty of $1/2$ in each direction. Figure~\ref{coherent_state} shows a coherent state in phase space.
+\end{align}In our case, $| \alpha \rangle$ is a coherent state. It is represented by a dimensionless complex number $\alpha = X + i P$. The Q-Function is a quasiprobability distribution. For every possible value of $\alpha$, i.e. for every point on the $X-P$-plane the Q-Function will give us the probability of that state. Figure~\ref{coherent_state} shows a coherent state in phase space.
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=.4\linewidth]{images/coherent_state.eps}
-	\caption{Coherent state in phase space. The $x$-axis represents the position and the $y$-axis represents the momentum. To each axis, there is a quantum uncertainty of $1/2$.}
+	\caption{Coherent state $|\alpha \rangle$ in phase space. The state $|\alpha \rangle$ is represented by a dimensionless complex number $\alpha = X + iP$. To each axis, there is a quantum uncertainty of $1/2$.}
 	\label{coherent_state}
 \end{figure}
 \FloatBarrier
 
-\noindent In Julia with QuantumOptics.jl, we can use the command \texttt{qfunc()} to get the phase space representation of the photon state:
+\noindent In Julia with QuantumOptics.jl, we can use the command \texttt{qfunc()} to get the Husimi Q representation of the photon state:
 
 \begin{lstlisting}
 bdr = 6

@@ -1,92 +1,73 @@
 \section{Introduction}
-We're constantly looking for materials with specific properties that can make our lives easier. To find a new material that fits our needs, we could look for it in nature. That means we'd go digging in the earth until we find something new, isolate it, take it to the lab, determine its properties and hope we found what we needed. This process is quite cumbersome and as technology gets more and more advanced, we'll find ourselves in need of materials that might not be naturally occurring in the first place. In that case we need to determine whether such materials could theoretically exist at all and if so, what are the requirements a compound needs to have in order to have a specific property? To find out, we conduct simulations which we're already doing very rigorously right now. However, when simulating quantum many-body systems, the Hilbert space scales dramatically and our conventional devices will fail.
+The study of solid-state objects is of great interest for us, especially since some phenomena occuring in solids have a lot of commercial potential. There are some difficulties, however. It can be very challenging to look into a solid. Certain phenomena might be happening very fast (e.g. on a nanosecond scale), the lattice spacing might be very small (e.g. only several angstroms apart) and in every naturally occuring solid there are structural defects and lattice vibrations. All these things can obfuscate the basic workings of certain phenomena. On top of all that, we can't change a naturally occuring solid which is probably the biggest inconvenience. A way to circumvent all these problems is to just make a crystal ourselves, a crystal in which certain phenomena are happening much slower (e.g. on a second scale), in which there's a bigger lattice spacing (e.g. on a micrometer scale) and that is free of defects. That crystal will be fully controllable by us and we can change its structure as we wish.
 
-One solution to this is to use a quantum computer. Algorithms with exponential time on classical devices would operate then on polynomial time. There's just one problem: We don't have a sophisticated quantum computer yet and will likely not have one in the next 10-20 years, at least for our specific purposes. So rather than utilizing a general-purpose quantum computer, for now there's another approach that's more fruitful: We'll restrict ourselves to a specific problem by constructing a quantum system that simulates another quantum system. Such a system won't be able to simulate anything, just what we designed it for. This is called an \textit{analog quantum simulator}. With analog quantum simulators, we can not only simulate properties of compounds, but any quantum problem that we wish to solve. A nice introduction to quantum simulation can be found at \cite{quantum_sanchez}.
+In this thesis, we'll ask ourselves the question how to make atoms self-organize to create an artificial solid. For that, we'll establish a theoretical model in which we arrange atoms in a lattice. We'll obtain two configurations with two Hamiltonians whose properties we'll discuss. Simulations in the language Julia with the framework QuantumOptics.jl will show us if we're able to observe the properties that we expect.
 
-\section{Cold Atoms in Optical Cavities}
-What we want to achieve is to order atoms in a lattice to simulate a solid. To prevent them from flying away, we have to fix them in space somehow. A great way to do this is to use a laser potential. Take a look at Figure~\ref{laser_cavity}. When two laser beams are opposing each other with contributions $\propto \exp(ikx)$ and $\propto \exp(-ikx)$, a cosine pattern will form. The idea is that the atoms will localize at the antinodes of the laser potential to minimize the energy, i.e. the atoms will be localized in the "valleys" of the potential. We'll take that approach one step further and put the atoms in a cavity. There are different types of cavities, such as the bow-tie, the ring and the Fabry-Perot cavity. We will utilize the Fabry-Perot cavity. There are two curved mirrors separated by a distance $d$. The laser light will enter the cavity through the partially transmissive mirrors. There are a couple advantages of using a cavity for us. If we choose $d$ and $\lambda$ such that $d = n \lambda / 2$, $n \in \mathrm{N}$, then the light field in the cavity will be amplified and the atoms more tightly bounded. With this setup, the atoms will also take part in amplifying their own trapping potential.
+\section{Explanation of the model}
+
+What we want to achieve is to arrange atoms in a lattice to simulate a solid. We need to somehow hold them in place. For that, we'll use laser light. Consider the setup depicted in Figure~\ref{counter-propagating}. There are two lasers, each with the same frequency. If we set their direction on the same axis, but counter propagating with contributions $\propto \exp(ikx)$ and $\propto \exp(-ikx)$, a cosine pattern or standing wave of the intensity will form. In between, we put our atoms. There's a special trick now. We set the frequency of the laser $\omega_\text{l}$ way below the excitation frequency of the atoms $\omega_\text{a}$ (this is commonly called "red-detuning"). That will induce dipoles in the atoms and the dipoles will interact with the light field. Because of the dipole-light field interaction, there's now a potential for the atoms which is what we needed. The atoms will now sort of "fall" into the lowest points of the potential to minimize their energy. The light field intensity has a cosine pattern, thus the same will be the case for the potential ($V \propto -I$). Now we have an array of equally spaced atoms, already what we could call an artificial solid. To enhance atom-light field interaction, we'll take our setup one step further and introduce a cavity, as depicted in Figure~\ref{put_in_cavity}. There are two mirrors. The one on the left is partially transmissive to let the laser light in. We set the distance between the two mirros to $d = n \lambda / 2$ so that the light field will be amplified inside the cavity.
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
 	\includegraphics[width=.7\linewidth]{images/counter_propagating.eps}
 	\subcaption{Counter-propagating lasers.}
+	\label{counter-propagating}
 	\end{minipage}
 %
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
 	\includegraphics[width=.7\linewidth]{images/cavity.eps}
 	\subcaption{Optical cavity.}
+	\label{put_in_cavity}
 	\end{minipage}
-\caption{Two counter-propagating lasers create a cosine-potential. If we put atoms in that potential, they will localize at the antinodes and form a lattice pattern. We'll take that approach even further and put the atoms in a cavity. That way the light field will be amplified and the atoms themselves take part in creating their own trapping potential.}
+\caption{Two counter-propagating lasers create a cosine-potential. In between, we put our atoms. Red-detuning the lasers will induce dipoles in the atoms which interact with the light field, creating a potential for the atoms. As the atoms always strive to minimize their energy, they will position themselves at the "valleys" of the potential. We'll take that approach even further and put the atoms in a cavity. That way atom-light field interaction will be enhanced.}
 \label{laser_cavity}
 \end{figure}
 \FloatBarrier
 
-\noindent We will work with a far red-detuned laser, that means the frequency of the laser $\omega_\text{l}$ is way smaller than the excitation frequency of atom $\omega_\text{a}$. If we prevent the atom from being excited, a strong dipole force will build up and the atom will get strongly coupled to the cavity field. The lasers entering through the cavity walls into the cavity poses a problem: That way the motion of one atom affects the cooling of another. A solution is proposed in \cite{domokos2002}: Pumping transversally to the cavity axis. Figure~\ref{pumping} shows a sketch of a longitudinally and transversally pumped cavity. These are now our two systems for which we'll derive the Hamiltonians. We'll now discuss some of the properties of these systems. There is a fundamental difference how atoms scatter light in a transversally pumped cavity and in a longitudinally pumped cavity. In the longitudinal case, if a photon with momentum $\hbar k$ in $x$-direction bumps into an atom, it will recoil backward, having now a momentum $-\hbar k$. Conservation of momentum thus requires the atom to have now a momentum of $2\hbar k$. In the transversal case, there are two counter-propagating laser beams as to prevent kicking the atoms out of the cavity. If an atom scatters a transversally incoming photon along the cavity axis, it will now have a momentum of $\hbar k$ and the photon $-\hbar k$. We see that the fundamental difference between longitudinal and transversal pump is the momenta the atoms will be able to acquire. In the longitudinal case, there will only be momenta of $2n\hbar k$, where $n \in \mathrm{N}$, whereas for the transversal pump there are momenta of $\hbar k$.
+\noindent There are different ways to get a light field inside the cavity. Figure~\ref{longitudinal_pump} depicts what we've discussed so far. There we shoot a laser parallel to the cavity axis into the cavity (longitudinal pump). Even if there are no atoms inside, there's still a light field. That is not the case if we pump transverally, as described in \cite{domokos2002} and shown in Figure~\ref{transversal_pump}. For transversal pump, if there are no atoms inside the cavity, no light field will exist along the cavity axis. To create a light field, here we rely on the atoms scattering the photons into the cavity, i.e. the atoms effectively create their own trapping potential. Pumping transversally, a couple interesting phenomena emerge which do not happen for the longitudinal pump. We will discuss those properties later. Now to the derivation of the Hamiltonians for those two systems.
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
 	\includegraphics[width=.8\linewidth]{images/pump_long.eps}
 	\subcaption{Longitudinal pumping.}
+	\label{longitudinal_pump}
 	\end{minipage}
 %
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
 	\includegraphics[width=.8\linewidth]{images/pump_trans.eps}
 	\subcaption{Transversal pumping.}
+	\label{transversal_pump}
 	\end{minipage}
-\caption{Longitudinal and transversal pumping. For longitudinal pumping, the atoms will acquire a momentum of $2\hbar k$ scattering a photon, whereas for transversal pumping there is momentum exchange of $\hbar k$.}
+\caption{Longitudinally and transversally pumped cavities. For longitudinal pumping, even if there are no atoms inside the cavity, there's still a light field. That is not the case for transversal pumping. There the light field along the cavity axis is created by the atoms scattering incoming photons, i.e. the atoms are effectively creating their own trapping potential.}
 \label{pumping}
 \end{figure}
 \FloatBarrier
 
-\noindent To illustrate the discrete momenta, take a look what a wave function looks like inside the cavity:
-
-\begin{align}
-\psi(k) = \frac{1}{N} \sum_{l} c_l \exp(likx) = \frac{1}{N} \Big( c_0 + c_{\pm 1} \exp(ikx) + c_{\pm 2} \exp(2ikx) + \dots \Big) .
-\end{align}The variable $N$ is a normalizing constant. As previously mentioned, an atom inside the cavity cannot have any arbitrary momentum, but only multiples of $\hbar k$ due to the way momentum is acquired. If we plot the wave function as a whole, we don't see the discreetness of the momenta. However, if we perform a Fourier transform, we can access the $c_l$'s. For longitudinal pump, we thus only expect momenta of 0, $2 \hbar k$, $4 \hbar k$, $\dots$ corresponding to $c_0$, $c_{\pm 2}$, $c_{\pm 4}$ and so on. For transversal pump we expect momenta of 0, $\hbar k$, $2 \hbar k$, $3 \hbar k$, $\dots$ corresponding to $c_0$, $c_{\pm 1}$, $c_{\pm 2}$, $c_{\pm 3}$ and so on. In Table~\ref{wave_table} there are the $c_l$'s with the components of the wave function.
-
-\begin{table}[!htb]
-\centering
-\begin{tabular}{lll}
-$c_l$    & wave number & momentum    \\
-\hline \\
-$c_0$    & 0           & 0           \\
-$c_{\pm 1}$    & $k \rightarrow \exp(ikx)$         & $\hbar k$   \\
-$c_{\pm 2}$    & $2k \rightarrow \exp(2ikx)$        & $2 \hbar k$ \\
-$c_{\pm 3}$    & $3k \rightarrow \exp(3ikx)$        & $3 \hbar k$ \\
-$\vdots$ &             &            
-\end{tabular}
-\caption{Coefficients of the wave function. If we plot the wave function density in position space, longitudinal and transversal pump might look quite similar. We thus perform a Fourier transform so we can access the $c_l$'s and gain further insight into the physical system. For longitudinal pump, we only expect $c_0$, $c_{\pm 2}$, $c_{\pm 4}$, $\dots$ while for transversal pump we expect $c_0$, $c_{\pm 1}$, $c_{\pm 2}$, $c_{\pm 3}$ and so on.}
-\end{table}
-\label{wave_table}
-\FloatBarrier
-
-
-
-\section{Derivation of the Hamiltonian}
-For those wishing to refresh their knowledge in quantum mechanics, the introductory chapters of Fox's quantum optics book will be a great help \cite{fox} (it's a great quantum optics book in general). In this section we'll derive the Hamiltonians being used for the simulation; one Hamiltonian for longitudinal pumping and one for transversal pumping. The Hamilton operator represents the total energy of a quantum system. We'll start with the Jaynes-Cummings Hamiltonian which describes the interaction of a two-level atom with a single mode of a cavity-field. We'll then modify the Hamiltonian according to our needs step by step. We'll tackle the crucial details and reference parts of the derivation which is not presented here.
+\section{Derivation of the Hamiltonians}
+For those wishing to refresh their knowledge in quantum mechanics, the introductory chapters of Fox's quantum optics book will be of great help \cite{fox} (it's a great quantum optics book in general). In this section we'll derive the Hamiltonians being used for the simulation: One Hamiltonian for longitudinal pumping and one for transversal pumping. We'll start with the Jaynes-Cummings Hamiltonian which describes the interaction of a two-level atom with a single mode of a cavity-field. We'll then modify the Hamiltonian according to our needs step by step. We'll tackle the crucial details and reference parts of the derivation which are not presented here.
 
 \subsection{The Jaynes-Cummings Hamiltonian}
-The Jaynes-Cummings model describes the interaction of a two-level atom with a single mode of a cavity field. The first appearance of the model was in \cite{jaynes}. Since we're dealing with both an atom and a light field at he same time, we have a composite system, i.e.
+The Jaynes-Cummings model describes the interaction of a two-level atom with a single mode of a cavity field. The first appearance of the model was in \cite{jaynes}. Since we're dealing with both an atom and a light field at the same time, we have a composite system, i.e.
 
 \begin{align}
 \psi_\text{total} = \psi_\text{light} \otimes \psi_\text{atom}.
 \end{align}The fact that we have two levels motivates a two-dimensional basis for the atom:
 
 \begin{align}
-|\text{g}\rangle = \begin{pmatrix}0 \\ 1\end{pmatrix} && |\text{e}\rangle = \begin{pmatrix}1 \\ 0\end{pmatrix},
+|\text{g}\rangle = \begin{pmatrix}0 \\ 1\end{pmatrix}, && |\text{e}\rangle = \begin{pmatrix}1 \\ 0\end{pmatrix},
 \end{align}where $|\text{g}\rangle$ is the ground state and $|\text{e}\rangle$ is the excited state. Both states respond to the operators
 
 \begin{align}
-\sigma^+ = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} && \sigma^- = \begin{pmatrix}0 & 0 \\ 1 & 0\end{pmatrix},
+\sigma^+ = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix}, && \sigma^- = \begin{pmatrix}0 & 0 \\ 1 & 0\end{pmatrix},
 \end{align}where $\sigma^+$ is the raising operator and $\sigma^-$ is the lowering operator. They have the properties
 
 \begin{align}
-\sigma^+ |\text{g}\rangle = |\text{e}\rangle && \sigma^- |\text{e}\rangle = |\text{g}\rangle.
-\end{align}The wave function for the atoms depends on the position, while this is not the case for the light field. Instead we will use photon number states or Fock states. A photon number state $|n\rangle$ thus represents a monochromatic quantized field with frequency $\omega$ containing $n$ atoms. The ground state $|0\rangle$ corresponds to 0 photons. The creation and  annihilation operators $a^\dagger$ and $a$ correspond to creating and annihilating a photon. We'll restrict ourselves to one dimension and start with an atom (or a Bose-Einstein condensate) in an external potential:
+\sigma^+ |\text{g}\rangle = |\text{e}\rangle, && \sigma^- |\text{e}\rangle = |\text{g}\rangle.
+\end{align}The wave function for the atoms depends on the position, while this is not the case for the light field. Instead we will use photon number states or Fock states. A photon number state $|n\rangle$ thus represents a monochromatic quantized field containing $n$ atoms. The ground state $|0\rangle$ corresponds to 0 photons. The creation and  annihilation operators $a^\dagger$ and $a$ correspond to creating and annihilating a photon. We'll restrict ourselves to one dimension and start with an atom (or a Bose-Einstein condensate) in an external potential:
 
 \begin{align}
 H_0 = \frac{p^2}{2m} + V_\text{ext}(x).
@@ -97,16 +78,16 @@ H_\text{field} = -\hbar \omega_\text{c} a^\dagger a,
 \end{align}where $\omega_\text{c}$ is the resonance frequency of the cavity and $a^\dagger$ and $a$ are the creation and annihilation operators. Next, we'll add a term describing the atomic transitions:
 
 \begin{align}
-H_\text{transition} = -\frac{1}{2}\hbar \omega_\text{a} \sigma_z,
-\end{align}where $\omega_\text{a}$ is the resonance frequency of the atom and $\sigma_z$ is the Pauli z-matrix which is defined as
+H_\text{transition} = -\hbar \omega_\text{a} \sigma_z,
+\end{align}where $\omega_\text{a}$ is the resonance frequency of the atom and $\sigma_z$ is the Pauli $z$-matrix which is defined as $\sigma_z = 1/2(|\text{e}\rangle \langle \text{e}| + |\text{g} \rangle \langle \text{g}|)$ or
 
 \begin{align}
-\sigma_z = \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix}.
-\end{align} The Hamiltonian $H_\text{transition}$ describes the atom being in the ground state or excited state, the transition energy is $1/2\hbar \omega_\text{a}$. The field-atom interaction we describe with following term:
+\sigma_z = \begin{pmatrix}1/2 & 0 \\ 0 & -1/2\end{pmatrix}.
+\end{align} The Hamiltonian $H_\text{transition}$ describes the atom being in the ground state or excited state, the transition energy is $\hbar \omega_\text{a}$. The atom-field interaction we describe with following term:
 
 \begin{align}
 H_\text{interaction} = \hbar g_0 \cos(kx) (\sigma^+ a + \sigma^- a^\dagger),
-\end{align}where $g_0$ is the coupling strength and $\sigma^+$ and $\sigma^-$ are the raising and lowering operators. Finally, we'll add the term describing the pumping:
+\end{align}where $g_0$ is the coupling strength. Finally, we'll add the term describing the pumping:
 
 \begin{align}
 H_\text{pump} = \hbar \eta (a e^{i\omega_\text{l}t} + a^\dagger e^{-i\omega_\text{l}t}),
@@ -114,14 +95,14 @@ H_\text{pump} = \hbar \eta (a e^{i\omega_\text{l}t} + a^\dagger e^{-i\omega_\tex
 
 \begin{align}
 \begin{split}
-H_\text{JC} = \underbrace{p^2 / 2m}_\text{atom} + \underbrace{V_\text{ext}(x)}_\text{external potential} - \underbrace{1/2 \hbar \omega_\text{a} \sigma_z}_\text{atomic transitions} - \underbrace{\hbar \omega_\text{c} a^\dagger a}_\text{field} + \underbrace{\hbar \eta (a e^{i \omega_\text{l} t} + a^\dagger e^{-i \omega_\text{l} t})}_\text{pumping} + \\
+H_\text{JC} = \underbrace{p^2 / 2m}_\text{atom} + \underbrace{V_\text{ext}(x)}_\text{external potential} - \underbrace{\hbar \omega_\text{a} \sigma_z}_\text{atomic transitions} - \underbrace{\hbar \omega_\text{c} a^\dagger a}_\text{field} + \underbrace{\hbar \eta (a e^{i \omega_\text{l} t} + a^\dagger e^{-i \omega_\text{l} t})}_\text{pumping} + \\
 + \underbrace{\hbar g_0 \cos(kx) (\sigma^+ a + \sigma^- a^\dagger)}_\text{field-atom interaction}.
 \end{split}
 \end{align}A more detailed derivation of the Jaynes-Cummings Hamiltonian (starting from Maxwell's equations and quantizing the cavity mode) can be found at \cite{collapseandrevival}. In order to get rid of the explicit time-dependence, we transform the Hamiltonian to a frame rotating with $\omega_\text{l}$. The Hamiltonian now reads:
 
 \begin{align}
 \begin{split}
-H_\text{JC} = \frac{p^2}{2m} + V_\text{ext}(x) - \frac{1}{2} \hbar \Delta_\text{a} \sigma_z - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \\
+H_\text{JC} = \frac{p^2}{2m} + V_\text{ext}(x) + \hbar \Delta_\text{a} \sigma_z - \hbar \Delta_\text{c} a^\dagger a + \hbar \eta (a + a^\dagger) + \\
 + \hbar g_0 \cos(kx) (\sigma^+ a + \sigma^- a^\dagger),
 \end{split}
 \end{align}where $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ and $\Delta_\text{c} = \omega_\text{l} - \omega_\text{c}$.
@@ -143,15 +124,21 @@ a^\dagger a = N, \qquad [N, a] = -a, \\
 
 \begin{align}
 \dot{\sigma}^+ = \frac{i}{\hbar} [H, \sigma^+] = \underbrace{-i \Delta_\text{a} \sigma^+}_{(*)} + \underbrace{i g_0 \cos(kx) a^\dagger}_{(**)}.
-\end{align}For (*), we'll look at the matrix representation of the operators:
+\end{align}For ($\ast$), we'll look at the matrix representation of the operators:
 
 \begin{align}
-\sigma^+ = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} \quad \sigma^- = \begin{pmatrix}0 & 0 \\ 1 & 0\end{pmatrix} \quad \sigma_z = \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix}.
+\sigma^+ = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix}, \quad \sigma^- = \begin{pmatrix}0 & 0 \\ 1 & 0\end{pmatrix}, \quad \sigma_z = \begin{pmatrix}1/2 & 0 \\ 0 & -1/2\end{pmatrix}.
 \end{align}We calculate the commutator relation $[\sigma_z, \sigma^+]$ explicitly:
 
 \begin{align}
-[\sigma_z, \sigma^+] = \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix} \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} - \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} \begin{pmatrix}1 & 0 \\ 0 & -1\end{pmatrix} = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} - \begin{pmatrix}0 & -1 \\ 0 & 0\end{pmatrix} = 2\sigma^+.
-\end{align}For (**), consider that $[\sigma^+, \sigma^-] = 1$. In our case, the pumping laser is far detuned from the atomic resonance frequency, i.e. $\Delta_\text{a} = \omega_\text{l} - \omega_\text{a}$ is large. Thus the excitation probability of the atom is vanishing and we set $\dot{\sigma}^+ = 0$. We get:
+[\sigma_z, \sigma^+] & = \begin{pmatrix}1/2 & 0 \\ 0 & -1/2\end{pmatrix} \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} - \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} \begin{pmatrix}1/2 & 0 \\ 0 & -1/2\end{pmatrix} = \nonumber \\[5pt]
+& = \begin{pmatrix}0 & 1/2 \\ 0 & 0\end{pmatrix} - \begin{pmatrix}0 & -1/2 \\ 0 & 0\end{pmatrix} = \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} = \sigma^+.
+\end{align}For ($\ast \ast$), we'll calculate $[\sigma^-, \sigma^+]$:
+
+\begin{align}
+[\sigma^-, \sigma^+] & = \begin{pmatrix}0 & 0 \\ 1 & 0\end{pmatrix} \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} - \begin{pmatrix}0 & 1 \\ 0 & 0\end{pmatrix} \begin{pmatrix}0 & 0 \\ 1 & 0\end{pmatrix} = \nonumber \\[5pt]
+& = \begin{pmatrix}0 & 0 \\ 0 & 1\end{pmatrix} - \begin{pmatrix}1 & 0 \\ 0 & 0\end{pmatrix} = \begin{pmatrix}-1 & 0 \\ 0 & 1\end{pmatrix} = -2\sigma_z \approx 1.
+\end{align}In our case, the pumping laser is far detuned from the atomic resonance frequency, i.e. $\omega_\text{l} \ll \omega_\text{a}$. The atom thus only stays in the ground state and we approximate $\sigma_z \approx -1/2$. Since we're not interested in fast dynamics, we set $\dot{\sigma}^+ = 0$. We get:
 
 \begin{align}
 \sigma^+ = \frac{g_0 }{\Delta_\text{a}} \cos(kx) a^\dagger, && \sigma^- = \frac{g_0 }{\Delta_\text{a}} \cos(kx) a.
@@ -170,43 +157,105 @@ H_\text{long} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagg
 H_\text{long} = \hbar \omega_r \biggl( \frac{1}{\hbar^2 k^2} p^2 + \frac{1}{\hbar \omega_r} V_\text{ext}(x) - \frac{1}{\omega_r} \Delta_c a^\dagger a + \frac{1}{\omega_r} \eta (a + a^\dagger) + \\
  + \frac{1}{\hbar \omega_r} U_0 \cos(kx)^2 a^\dagger a \biggr).
 \end{split}
-\end{align}In the simulation program, we will thus set $\hbar = 1$ and multiply each quantity by the preceding factors.
+\end{align}In the simulation program, we will set $\hbar = 1$ and multiply each quantity by the preceding factors.
 
 \subsection{Transversal Pump}
 
-Now we want to focus our attention at a different case where the laser is incident transversally relative to the axis of the mirrors. The cavity mode will thus only be populated by photons which were scattered off the atoms. The Hamiltonian now reads:
+Now we'll tackle the transversal pump. Here the cavity mode will only be populated by photons which were scattered off the atoms. The Hamiltonian now reads:
 
 \begin{align}
 \begin{split}
 H_\text{trans} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_\text{c} a^\dagger a  + \hbar \eta \cos(kx) \cos(kz) (a + a^\dagger) + \\
 + \hbar \frac{\Omega^2}{\Delta_\text{a}} \cos(kz)^2 + \hbar U_0 \cos(kx)^2 a^\dagger a,
 \end{split}
-\end{align}where $\Omega$ is the Rabi frequency. Let's look at the pump term a little more: When transversally pumping, there are two counter-propagating laser beams. We thus have to consider photons traveling in positive $z$-direction $\psi_\text{photon} \propto \exp(ikz)$ and negative $z$-direction $\psi_\text{photon} \propto \exp(-ikz)$. Combined, we obtain the cosine term. For the $x$-direction, we can argue similarly: when an atom scatters a photon, we have to consider $\exp(ikx)$ and $\exp(-ikx)$. Here we only consider one dimension, so we set $z=0$:
+\end{align}where $\Omega$ is the Rabi frequency. Here we only consider one dimension, so we set $z=0$:
 
 \begin{align}
 \begin{split}
 H_\text{transv} = \frac{p^2}{2m} + V_\text{ext}(x) - \hbar \Delta_c a^\dagger a + \hbar \eta \cos(kx) (a + a^\dagger) + \\
  + \hbar U_0 \cos(kx)^2 a^\dagger a.
 \end{split}
-\end{align}Note that because $H_\text{trans} \propto \cos(kx) + \cos(kx)^2$, the Hamiltonian is $\lambda$-periodic. As previously mentioned, keeping the right dimensionality in the simulation is very important. We define an \textit{order parameter} $\Theta$, which indicates whether the atoms are uniformly distributed or localized at potential minima:
+\end{align}Note that because $H_\text{trans} \propto \cos(kx)$, the Hamiltonian is $\lambda$-periodic. The only difference now to the longitudinal pump Hamiltonian is the spatial dependence in the pump term.
+
+\section{Properties of the system}
+
+\noindent We'll now discuss some properties that the longitudinally and transversally pumped cavities have and later tackle some further details only concerning the transversally pumped cavity. There is a fundamental difference how atoms scatter light in the longitudinally pumped cavity and in the transversally pumped cavity. For the longitudinal pump, if a photon with momentum $\hbar k$ in $x$-direction bumps into an atom, it will recoil backward, having now a momentum $-\hbar k$. Conservation of momentum thus requires the atom to have now a momentum of $2\hbar k$. For the transversal pump, when a photon is incident perpendicularly to the cavity axis, the total momentum in the $x$-direction will be 0. If an atom scatters now the photon along the cavity axis, it will now have a momentum of $\hbar k$ and the photon $-\hbar k$. The total momentum along the $x$-direction will still be 0. We see that the fundamental difference between longitudinal and transversal pump is the momenta the atoms are able to acquire. In the longitudinal case, there will only be momenta of $2n\hbar k$, where $n \in \mathrm{N}$, whereas for the transversal pump there are momenta of $\hbar k$. To illustrate the discrete momenta, take a look at the wave function representing the atoms inside the cavity:
 
 \begin{align}
-\Theta \coloneqq \langle \psi | \cos(kx) | \psi \rangle.
-\end{align}At $\Theta = 0$, there's a uniform distribution and at $\Theta = \pm 1$, the atoms are localized at even or odd antinodes. An analytic solution of $\Theta$ and the lattice potential can be seen in Figure~\ref{fig:self-organization}. For transversal pumping, there's a clear critical pumping strength $\eta_\text{crit}$, at which self-organization starts taking place. For longitudinal pumping, $\Theta$ would increase starting from 0.
+\psi(x) = \frac{1}{N} \sum_{l} c_l \exp(likx) = \frac{1}{N} \Big( c_0 + c_{\pm 1} \exp(ikx) + c_{\pm 2} \exp(2ikx) + \dots \Big) .
+\end{align}The variable $N$ is a normalizing constant. As previously mentioned, an atom inside the cavity cannot have any arbitrary momentum, but only multiples of $\hbar k$ due to the way momentum is acquired. If we plot the wave function as a whole, we don't see the discreetness of the momenta. However, if we perform a Fourier transform, we can access the $c_l$'s. For longitudinal pump, we thus only expect momenta of 0, $2 \hbar k$, $4 \hbar k$, $\dots$ corresponding to $c_0$, $c_{\pm 2}$, $c_{\pm 4}$ and so on. For transversal pump we expect momenta of 0, $\hbar k$, $2 \hbar k$, $3 \hbar k$, $\dots$ corresponding to $c_0$, $c_{\pm 1}$, $c_{\pm 2}$, $c_{\pm 3}$ and so on. In Table~\ref{wave_table} there are the $c_l$'s with the components of the wave function.
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{lll}
+$c_l$    & wave number & momentum    \\
+\hline \\
+$c_0$    & 0           & 0           \\
+$c_{\pm 1}$    & $k \rightarrow \exp(ikx)$         & $\hbar k$   \\
+$c_{\pm 2}$    & $2k \rightarrow \exp(2ikx)$        & $2 \hbar k$ \\
+$c_{\pm 3}$    & $3k \rightarrow \exp(3ikx)$        & $3 \hbar k$ \\
+$\vdots$ &             &            
+\end{tabular}
+\caption{Coefficients of the wave function. If we plot the position probability density, longitudinal and transversal pump might look quite similar. We thus perform a Fourier transform so we can access the $c_l$'s and gain further insight into the physical system. For longitudinal pump, we only expect $c_0$, $c_{\pm 2}$, $c_{\pm 4}$, $\dots$ while for transversal pump we expect $c_0$, $c_{\pm 1}$, $c_{\pm 2}$, $c_{\pm 3}$ and so on.}
+\end{table}
+\label{wave_table}
+\FloatBarrier
+
+\noindent Figure~\ref{fig:self-organization} shows two Figures from a paper that investigates a Bose-Einstein condensate in a transversally pumped cavity \cite{Nagy2008}. On the right, we see what we're already familiar with: The peak of the position probability density is located at the lowest point of the potential. That atoms localize at the potential "valleys" to minimize their energy. On the left, there's an illustration of the order parameter $\Theta$ versus the pump strength $\eta$. When $\Theta = 0$, the atoms are uniformly distributed in the cavity. When $\Theta = 1$, the atoms are in a lattice pattern. The interesting thing about transversal pump (which is also described in \cite{domokos2002}) is that the atoms are initially resisting being ordered and suddenly arrange themselves in a lattice pattern depending on the pump strength. Initially, $\Theta$ stays at 0. At a critical pump strength however, suddenly the order parameter jumps up. This is also a behavior which we expect to see in our simulations later.
 
 \begin{figure}[!htb]
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
 	\includegraphics[width=1\linewidth]{images/order-parameter.pdf}
 	\subcaption{Order parameter.}
+	\label{order_parameter}
 	\end{minipage}
 %
 	\begin{minipage}[b]{.5\linewidth}
 	\centering
 	\includegraphics[width=1\linewidth]{images/lattice-potential.pdf}
 	\subcaption{Lattice potential.}
+	\label{lattice_potential}
 	\end{minipage}
 \caption{Order parameter and lattice potential for transversal pumping. When we pump transversally, the atoms initially don't order themselves in a lattice. Only at a critical pump strength $\eta_\text{crit}$, self-organization takes place rapidly. The location of the atoms will be in the potential minima. Figures taken from~\cite{Nagy2008}.}
 \label{fig:self-organization}
 \end{figure}
 \FloatBarrier
+
+\noindent Notice also that in Figure~\ref{lattice_potential}, the wave function density and the potential are $\lambda$-periodic, as the Hamiltonian for the transversally pumped cavity is also $\lambda$-periodic. As such, there are two ways in which the atoms arrange themselves inside the cavity, as depicted in Figure~\ref{lattice_structure}. In our simulations, we will observe a $\lambda / 2$ periodicity. That is because we'll be looking at the superposition of two symmetric states that are just shifted by $\lambda / 2$. Measuring the system experimentally, we would obtain only one state. That is also the case when investigating the system analytically, as in \cite{Nagy2008}. When we're doing simulations, however, it won't be possible for us to separate the two states. Figure~\ref{densities_super} shows what we expect to see in the simulation.
+
+\begin{figure}[!htb]
+	\begin{minipage}[b]{.5\linewidth}
+	\centering
+	\includegraphics[width=.9\textwidth]{images/lattice_drawing.eps}
+	\subcaption{Lattice structure.}
+	\label{lattice_structure}
+	\end{minipage}
+%
+	\begin{minipage}[b]{.5\linewidth}
+	\centering
+	\includegraphics[width=.9\textwidth]{images/density_superposition.pdf}
+	\subcaption{Densities.}
+	\label{densities_super}
+	\end{minipage}
+\caption{Lattice configuration and superposition of densities. There are two ways for the atoms to arrange themselves, as shown on the left. If we were to measure the system experimentally, we'd only obtain one lattice pattern. In the simulation, however, we obtain the two configurations simultaneously, thus observing a $\lambda/2$-periodic position probability density.}
+\label{densities_superposition}
+\end{figure}
+\FloatBarrier
+
+\noindent To summarize, the expected properties of our systems are:
+
+\begin{itemize}
+	\item The atoms are localized in the "valleys" of the optical potential.
+	\item Longitudinal pumping:
+		\begin{itemize}
+			\item The atoms can have momenta of $2 n \hbar k$.
+			\item The more we pump, the more photons we will get.
+		\end{itemize}
+	\item Transversal pumping:
+		\begin{itemize}
+			\item The atoms can have momenta of $n \hbar k$.
+			\item There is an abrupt self-organization.
+			\item We observe a superposition of two symmetric states.
+		\end{itemize}
+\end{itemize}
